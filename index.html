@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+ <head>
+  <meta charset="utf-8">
+  <title>Угол на единичной окружности</title>
+  <link rel="icon" type="image/x-icon" href="icon.png">
+  <style>
+  </style>
+  <script>
+function radiansToDegrees(radians) {
+    return radians/Math.PI*180;
+}
+function degreesToRadians(degrees) {
+    return degrees/180*Math.PI;
+}
+window.addEventListener("load", (event) => {
+    const canvas = document.getElementById('canvas');
+    if (canvas.getContext) {
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.beginPath();
+        context.arc(350,350,270,0,2*Math.PI)
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(10, 350);
+        context.lineTo(690, 350);
+        context.lineTo(680, 355);
+        context.moveTo(690, 350);
+        context.lineTo(680, 345);
+
+        context.moveTo(350, 690);
+        context.lineTo(350, 10);
+        context.lineTo(355, 20);
+        context.moveTo(350, 10);
+        context.lineTo(345, 20);
+        context.stroke();
+
+        context.font = "24px Times New Roman";
+        context.fillStyle = "black";
+        context.fillText('X', 680, 380);
+        context.fillText('Y', 360, 20);
+        context.font = "bold 24px Courier";
+        context.fillText('0', 353, 370);
+        context.fillText('1', 350+273, 370);
+        context.fillText('1', 353, 350-275);
+        context.fillText('-1', 350-303, 370);
+        context.fillText('-1', 353, 350+290);
+
+        context.lineWidth = 4;
+        context.strokeStyle = "green";
+        context.beginPath();
+        const x = Math.floor(350+270*Math.cos(Math.PI/4));
+        const y = Math.floor(350-270*Math.sin(Math.PI/4));
+        context.moveTo(350, 350);
+        context.lineTo(x, y);
+        context.arc(350,350,270,-Math.PI/4,0)
+        context.moveTo(350+270, 350);
+        context.lineTo(350, 350);
+        context.fillStyle = '#9DEC9D';
+        context.fill();
+        context.stroke();
+        
+        context.font = "28px Times New Roman";
+        context.fillStyle = 'black';
+        const topWidth = context.measureText('π').width;
+        context.fillText('π', x+20, y-20);
+        context.textBaseline = 'top';
+        const bottomWidth = context.measureText('4').width;
+        context.fillText('4', x+20+(topWidth-bottomWidth)/2, y-15);
+        context.lineWidth = 1;
+        context.strokeStyle = "black";
+        context.beginPath();
+        context.moveTo(x+20+topWidth/2-Math.max(topWidth,bottomWidth)/2, y-17);
+        context.lineTo(x+20+topWidth/2+Math.max(topWidth,bottomWidth)/2, y-17);
+        context.stroke();
+    }
+});
+  </script>
+ </head>
+ <body>
+  <div style="display: inline-block;">
+   <h1 style="text-align: center;">Угол на единичной окружности</h1>
+   <div>
+    <div style="display: inline-block; vertical-align: middle;">
+     <canvas id="canvas" width="700" height="700"></canvas>
+    </div>
+   </div>
+   <div>
+    <input type="radio" id="degrees" name="units" value="degrees" checked />
+    <label for="degrees">Градусы</label>
+   </div>
+   <div>
+    <input type="radio" id="radians" name="units" value="radians" />
+    <label for="radians">Радианы</label>
+   </div>
+ </body>
+</html>
