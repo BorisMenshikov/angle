@@ -7,36 +7,107 @@
   <style>
   </style>
   <script>
-function radiansToDegrees(radians) {
-    return radians/Math.PI*180;
+
+function strToRadians(angle,units) {
+    if (units==="radians"){
+        if (angle.includes('/')){
+            let [num,den] = angle.split('/')
+            if (num==="π"){
+                return Math.PI/Number(den);
+            }else if (num.endsWith("π")){
+                return Number(num.substring(0,num.length-1))*Math.PI/Number(den);
+            }else{
+                return Number(num)/Number(den);
+            }
+        }
+        if (angle==="π"){
+            return Math.PI;
+        }else if (angle.endsWith("π")){
+            return Number(angle.substring(0,angle.length-1))*Math.PI;
+        }else{
+            return Number(angle);
+        }
+    }else if (units==='degrees'){
+        return Number(angle)*(Math.PI/180)
+    }else{
+        throw new Error('unknown units '+units)
+    }
 }
-function degreesToRadians(degrees) {
-    return degrees/180*Math.PI;
+
+function matchesFormat(input,units) {
+    return (
+        units==="degrees" && input.match(/^\d{1,3}(?:\.\d)?$/)||
+        // 45 45.4
+        units==="radians" && input.match(/^(?:\d{1,4}π?|π)(?:\/[1-9]\d{0,3})?$/)
+        // 2 2pi 2pi/3 2/3 pi/2 pi
+    );
 }
-window.addEventListener("load", (event) => {
+
+function showOnCircle() {
+    let angleStr = document.getElementById("angle").value;
+    let unitsRadioList = document.getElementsByName("units");
+    let units;
+    for (let i = 0; i<unitsRadioList.length; i++){
+        if (unitsRadioList[i].checked){
+            units = unitsRadioList[i].value;
+            break;
+        }
+    }
+    let rusUnits;
+    if (units==='degrees'){
+        rusUnits='градусы';
+    }else{
+        rusUnits='радианы';
+    }
+    let log = "Введённое значение угла: "+angleStr+", мера измерения "+rusUnits;
+    if (!matchesFormat(angleStr,units)) {
+        log+="<br>Ошибка: входные данные не соответствуют формату";
+        document.getElementById("log").innerHTML = log;
+        return;
+    }
+    document.getElementById("log").innerHTML = log;
+    let angleInRadians = strToRadians(angleStr,units);
+    clearCanvas();
+    drawAngle(angleInRadians,angleStr,units);
+    drawEmptyCircle();
+}
+
+function clearCanvas(){
     const canvas = document.getElementById('canvas');
     if (canvas.getContext) {
         const context = canvas.getContext('2d');
         context.clearRect(0, 0, canvas.width, canvas.height);
-        context.beginPath();
+    }
+}
+
+function drawEmptyCircle(){
+    const canvas = document.getElementById('canvas');
+    if (canvas.getContext) {
+        const context = canvas.getContext('2d');
+
+        context.lineWidth = 1;
+        context.strokeStyle = "black";
+
+        context.beginPath(); // окружность
         context.arc(350,350,270,0,2*Math.PI)
         context.stroke();
 
-        context.beginPath();
+        context.beginPath(); // абцисса
         context.moveTo(10, 350);
         context.lineTo(690, 350);
         context.lineTo(680, 355);
         context.moveTo(690, 350);
         context.lineTo(680, 345);
 
-        context.moveTo(350, 690);
+        context.moveTo(350, 690); // ордината
         context.lineTo(350, 10);
         context.lineTo(355, 20);
         context.moveTo(350, 10);
         context.lineTo(345, 20);
         context.stroke();
 
-        context.font = "24px Times New Roman";
+        context.textBaseline = 'alphabetic';
+        context.font = "24px Times New Roman"; // подписи
         context.fillStyle = "black";
         context.fillText('X', 680, 380);
         context.fillText('Y', 360, 20);
@@ -46,36 +117,77 @@ window.addEventListener("load", (event) => {
         context.fillText('1', 353, 350-275);
         context.fillText('-1', 350-303, 370);
         context.fillText('-1', 353, 350+290);
+    }
+}
 
-        context.lineWidth = 4;
+function drawAngle(angleInRadians,angleStr,units){
+    const canvas = document.getElementById('canvas');
+    if (canvas.getContext) {
+        const context = canvas.getContext('2d');
+
+        context.lineWidth = 4; // сектор
         context.strokeStyle = "green";
         context.beginPath();
-        const x = Math.floor(350+270*Math.cos(Math.PI/4));
-        const y = Math.floor(350-270*Math.sin(Math.PI/4));
+        const x = Math.floor(350+270*Math.cos(angleInRadians));
+        const y = Math.floor(350-270*Math.sin(angleInRadians));
+
+        context.lineWidth = 1;
         context.moveTo(350, 350);
         context.lineTo(x, y);
-        context.arc(350,350,270,-Math.PI/4,0)
+        context.arc(350,350,270,-angleInRadians,0)
         context.moveTo(350+270, 350);
         context.lineTo(350, 350);
         context.fillStyle = '#9DEC9D';
         context.fill();
         context.stroke();
         
+        context.lineWidth = 4;
+        context.beginPath();
+        context.moveTo(350, 350);
+        context.lineTo(x, y);
+        context.stroke();
+
+        context.beginPath();
+        context.arc(350,350,270,-angleInRadians,0)
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(350+270, 350);
+        context.lineTo(350, 350);
+        context.stroke();
+
+        context.textBaseline = 'alphabetic';
         context.font = "28px Times New Roman";
         context.fillStyle = 'black';
-        const topWidth = context.measureText('π').width;
-        context.fillText('π', x+20, y-20);
-        context.textBaseline = 'top';
-        const bottomWidth = context.measureText('4').width;
-        context.fillText('4', x+20+(topWidth-bottomWidth)/2, y-15);
-        context.lineWidth = 1;
-        context.strokeStyle = "black";
-        context.beginPath();
-        context.moveTo(x+20+topWidth/2-Math.max(topWidth,bottomWidth)/2, y-17);
-        context.lineTo(x+20+topWidth/2+Math.max(topWidth,bottomWidth)/2, y-17);
-        context.stroke();
+        //TODO: отображение надписей в разных четвертях
+        //TODO: обработать наезжание надписи с мерой угла на подписи к осям
+        if (units==='degrees'){
+            context.fillText(angleStr+'°', x+10, y-10);
+        }else{
+            const topWidth = context.measureText('π').width;
+            context.fillText('π', x+20, y-20);
+            context.textBaseline = 'top';
+            const bottomWidth = context.measureText('4').width;
+            context.fillText('4', x+20+(topWidth-bottomWidth)/2, y-15);
+            context.lineWidth = 1;
+            context.strokeStyle = "black";
+            context.beginPath();
+            context.moveTo(x+20+topWidth/2-Math.max(topWidth,bottomWidth)/2, y-17);
+            context.lineTo(x+20+topWidth/2+Math.max(topWidth,bottomWidth)/2, y-17);
+            context.stroke();
+        }
     }
+}
+
+function addPi(){
+    document.getElementById("angle").value+='π';
+}
+
+window.addEventListener("load", (event) => {
+    clearCanvas();
+    drawEmptyCircle();
 });
+
   </script>
  </head>
  <body>
@@ -94,5 +206,8 @@ window.addEventListener("load", (event) => {
     <input type="radio" id="radians" name="units" value="radians" />
     <label for="radians">Радианы</label>
    </div>
+   <p>Введите значение угла: <input id="angle" type="text">&nbsp;<input type="button" onclick="addPi()" value="π"></p>
+   <p><input type="button" onclick="showOnCircle()" value="Отобразить на окружности"></p>
+   <p id="log"></p>
  </body>
 </html>
