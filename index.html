@@ -63,6 +63,8 @@ function showOnCircle() {
     if (!matchesFormat(angleStr,units)) {
         log+="<br>Ошибка: входные данные не соответствуют формату";
         document.getElementById("log").innerHTML = log;
+        clearCanvas();
+        drawEmptyCircle();
         return;
     }
     document.getElementById("log").innerHTML = log;
@@ -170,9 +172,18 @@ function drawAngle(angleInRadians,angleStr,units){
         }else{
             context.textBaseline = "top"
         }
-        let x0 = Math.floor(350+280*Math.cos(angleInRadians));
-        let y0 = Math.floor(350-280*Math.sin(angleInRadians));
-        //TODO: обработать наезжание надписи с мерой угла на подписи к осям
+        let textAngle = angleInRadians%(Math.PI*2);
+        if (87/180*Math.PI<textAngle && textAngle<Math.PI/2){
+            textAngle=87/180*Math.PI;
+        }else if (Math.PI<textAngle && textAngle<185/180*Math.PI) {
+            textAngle=185/180*Math.PI;
+        }else if (3*Math.PI/2<textAngle && textAngle<277/180*Math.PI) {
+            textAngle=277/180*Math.PI;
+        }else if (354/180*Math.PI<textAngle && textAngle<2*Math.PI) {
+            textAngle=354/180*Math.PI;
+        }
+        let x0 = Math.floor(350+280*Math.cos(textAngle));
+        let y0 = Math.floor(350-280*Math.sin(textAngle));
         if (units==='degrees'){
             context.fillText(angleStr+'°', x0, y0);
         }else{
@@ -241,6 +252,19 @@ function addPi(){
 window.addEventListener("load", (event) => {
     clearCanvas();
     drawEmptyCircle();
+    const input = document.getElementById('angle');
+    input.addEventListener("keyup", ({key}) => {
+        if (key === "Enter") {
+            showOnCircle();
+        }
+    });
+    input.addEventListener("keypress", (e) => {
+        const c = String.fromCharCode(e.keyCode);
+        if (c === "p" || c==="P" || c==="з" || c==="З" || c === "п" || c==="П" || c==="g" || c==="G") {
+            addPi();
+            e.preventDefault();
+        }
+    });
 });
 
   </script>
