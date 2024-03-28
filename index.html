@@ -35,12 +35,70 @@ function strToRadians(angle,units) {
 }
 
 function matchesFormat(input,units) {
-    return (
-        units==="degrees" && input.match(/^\d{1,3}(?:\.\d)?$/)||
-        // 45 45.4
-        units==="radians" && input.match(/^(?:\d{1,4}π?|π)(?:\/[1-9]\d{0,3})?$/)
-        // 2 2pi 2pi/3 2/3 pi/2 pi
-    );
+    if (input === ''){
+        return "ввод пуст";
+    }
+    if (units === 'degrees'){
+        if (!input.match(/^[0-9.]+$/)){
+            return "во вводе есть символы отличные от цифр и точки";
+        }
+        if (input.match(/\..*\./)){
+            return "во вводе больше одной точки";
+        }
+        if (input.match(/^\./)){
+            return "точка не должна быть первым символом";
+        }
+        if (input.match(/\.$/)){
+            return "точка не должна быть последним символом";
+        }
+        if (input.match(/\d{4}\./)){
+            return "перед точкой не должно быть более трёх цифр";
+        }
+        if (input.match(/\.\d{2}/)){
+            return "после точки может быть только одна цифра";
+        }
+        if (input.match(/\d{4}/)){
+            return "значение угла не должно содержать более трёх цифр";
+        }
+        if (!input.match(/^\d{1,3}(?:\.\d)?$/)){
+            return "внутренняя ошибка - не удалось описать конкретную проблему при вводе градусов";
+        }
+        return '';
+    }
+    if (units === 'radians'){
+        if (!input.match(/^[0-9π\/]+$/)){
+            return "во вводе есть символы отличные от цифр, π и /";
+        }
+        if (input.match(/π.*π/)){
+            return "во вводе больше одного π";
+        }
+        if (input.match(/\/.*\//)){
+            return "во вводе больше одного /";
+        }
+        if (input.match(/^\//)){
+            return "символ / не должен быть первым символом";
+        }
+        if (input.match(/\/$/)){
+            return "символ / не должен быть последним символом";
+        }
+        if (input.match(/\/.*π/)){
+            return "π не должно быть в знаменателе";
+        }
+        if (input.match(/π\d/)){
+            return "непосредственно после π не должно быть цифр";
+        }
+        if (input.match(/\/0/)){
+            return "знаменатель не должен начинаться нулём";
+        }
+        if (input.match(/\d{5}/)){
+            return "разрешено не более четырёх цифр подряд";
+        }
+        if (!input.match(/^(?:\d{1,4}π?|π)(?:\/[1-9]\d{0,3})?$/)){
+            return "внутренняя ошибка - не удалось описать конкретную проблему при вводе радиан";
+        }
+        return '';
+    }
+    return "внутренняя ошибка - неожиданная единица измерения угла";
 }
 
 function showOnCircle() {
@@ -59,9 +117,10 @@ function showOnCircle() {
     }else{
         rusUnits='радианы';
     }
-    let log = "Введённое значение угла: "+angleStr+", мера измерения "+rusUnits;
-    if (!matchesFormat(angleStr,units)) {
-        log+="<br>Ошибка: входные данные не соответствуют формату";
+    let log='';
+    const error = matchesFormat(angleStr,units);
+    if (error!=='') {
+        log="Ошибка: "+error;
         document.getElementById("log").innerHTML = log;
         clearCanvas();
         drawEmptyCircle();
@@ -173,8 +232,10 @@ function drawAngle(angleInRadians,angleStr,units){
             context.textBaseline = "top"
         }
         let textAngle = angleInRadians%(Math.PI*2);
-        if (87/180*Math.PI<textAngle && textAngle<Math.PI/2){
-            textAngle=87/180*Math.PI;
+        if (86/180*Math.PI<textAngle && textAngle<Math.PI/2){
+            textAngle=86/180*Math.PI;
+        }else if (Math.PI/2<=textAngle && textAngle<92/180*Math.PI){
+            textAngle=92/180*Math.PI;
         }else if (Math.PI<textAngle && textAngle<185/180*Math.PI) {
             textAngle=185/180*Math.PI;
         }else if (3*Math.PI/2<textAngle && textAngle<277/180*Math.PI) {
@@ -279,14 +340,14 @@ window.addEventListener("load", (event) => {
    </div>
    <div>
     <input type="radio" id="degrees" name="units" value="degrees" checked />
-    <label for="degrees">Градусы</label>
+    <label for="degrees">Градусы</label> &nbsp;&nbsp;&nbsp; Примеры для градусов: 45 45.5
    </div>
    <div>
     <input type="radio" id="radians" name="units" value="radians" />
-    <label for="radians">Радианы</label>
+    <label for="radians">Радианы</label> &nbsp;&nbsp;&nbsp; Примеры для радиан: 2 2/3 π 2π π/4 2π/3
    </div>
-   <p>Введите значение угла: <input id="angle" type="text">&nbsp;<input type="button" onclick="addPi()" value="π"></p>
+   <p>Введите значение угла: <input id="angle" type="text">&nbsp;<input type="button" onclick="addPi()" value="Вставить π"></p>
    <p><input type="button" onclick="showOnCircle()" value="Отобразить на окружности"></p>
-   <p id="log"></p>
+   <p id="log" style="color:red"></p>
  </body>
 </html>
