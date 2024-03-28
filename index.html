@@ -107,6 +107,7 @@ function drawEmptyCircle(){
         context.stroke();
 
         context.textBaseline = 'alphabetic';
+        context.textAlign = 'left';
         context.font = "24px Times New Roman"; // подписи
         context.fillStyle = "black";
         context.fillText('X', 680, 380);
@@ -159,28 +160,82 @@ function drawAngle(angleInRadians,angleStr,units){
         context.textBaseline = 'alphabetic';
         context.font = "28px Times New Roman";
         context.fillStyle = 'black';
-        //TODO: отображение надписей в разных четвертях
+        if (Math.PI/2 <= angleInRadians%(Math.PI*2) && angleInRadians%(Math.PI*2) <= Math.PI/2*3) {
+            context.textAlign = "right"
+        }else{
+            context.textAlign = "left"
+        }
+        if (0<=angleInRadians%(Math.PI*2) && angleInRadians%(Math.PI*2)<=Math.PI) {
+            context.textBaseline = "bottom"
+        }else{
+            context.textBaseline = "top"
+        }
+        let x0 = Math.floor(350+280*Math.cos(angleInRadians));
+        let y0 = Math.floor(350-280*Math.sin(angleInRadians));
         //TODO: обработать наезжание надписи с мерой угла на подписи к осям
         if (units==='degrees'){
-            context.fillText(angleStr+'°', x+10, y-10);
+            context.fillText(angleStr+'°', x0, y0);
         }else{
-            const topWidth = context.measureText('π').width;
-            context.fillText('π', x+20, y-20);
-            context.textBaseline = 'top';
-            const bottomWidth = context.measureText('4').width;
-            context.fillText('4', x+20+(topWidth-bottomWidth)/2, y-15);
-            context.lineWidth = 1;
-            context.strokeStyle = "black";
-            context.beginPath();
-            context.moveTo(x+20+topWidth/2-Math.max(topWidth,bottomWidth)/2, y-17);
-            context.lineTo(x+20+topWidth/2+Math.max(topWidth,bottomWidth)/2, y-17);
-            context.stroke();
+            if (angleStr.includes('/')){
+                let [num,den] = angleStr.split('/');
+                context.textBaseline = 'bottom';
+                const numMetrics = context.measureText(num);
+                const denMetrics = context.measureText(den);
+                const numWidth = numMetrics.width;
+                const numHeight = Math.abs(numMetrics.actualBoundingBoxAscent-numMetrics.actualBoundingBoxDescent);
+                const denWidth = denMetrics.width;
+                const denHeight = Math.abs(denMetrics.actualBoundingBoxAscent-denMetrics.actualBoundingBoxDescent);
+                const maxWidth = Math.max(numWidth,denWidth);
+                context.textAlign = 'center';
+                context.lineWidth = 1;
+                context.strokeStyle = "black";
+                if (0<=angleInRadians%(Math.PI*2) && angleInRadians%(Math.PI*2)<Math.PI/2){
+                    context.textBaseline = 'bottom';
+                    context.fillText(den, x0+maxWidth/2, y0);
+                    context.fillText(num, x0+maxWidth/2, y0-denHeight);
+                    context.beginPath();
+                    context.moveTo(x0, y0-denHeight);
+                    context.lineTo(x0+maxWidth, y0-denHeight);
+                    context.stroke();
+                }else if (Math.PI/2<=angleInRadians%(Math.PI*2) && angleInRadians%(Math.PI*2)<=Math.PI){
+                    context.textBaseline = 'bottom';
+                    context.fillText(den, x0-maxWidth/2, y0);
+                    context.fillText(num, x0-maxWidth/2, y0-denHeight);
+                    context.beginPath();
+                    context.moveTo(x0, y0-denHeight);
+                    context.lineTo(x0-maxWidth, y0-denHeight);
+                    context.stroke();
+                }else if (Math.PI<angleInRadians%(Math.PI*2) && angleInRadians%(Math.PI*2)<=3*Math.PI/2){
+                    context.textBaseline = 'top';
+                    context.fillText(num, x0-maxWidth/2, y0);
+                    context.fillText(den, x0-maxWidth/2, y0+numHeight);
+                    context.beginPath();
+                    context.moveTo(x0, y0+numHeight-3);
+                    context.lineTo(x0-maxWidth, y0+numHeight-3);
+                    context.stroke();
+                }else{
+                    context.textBaseline = 'top';
+                    context.fillText(num, x0+maxWidth/2, y0);
+                    context.fillText(den, x0+maxWidth/2, y0+numHeight);
+                    context.beginPath();
+                    context.moveTo(x0, y0+numHeight-3);
+                    context.lineTo(x0+maxWidth, y0+numHeight-3);
+                    context.stroke();
+                }
+            }else{
+                context.fillText(angleStr, x0, y0);
+            }
         }
     }
 }
 
 function addPi(){
-    document.getElementById("angle").value+='π';
+    const input = document.getElementById("angle");
+    const pos = input.selectionStart;
+    if (!input.value.includes('π')){
+        input.value=input.value.substring(0,pos)+'π'+input.value.substring(pos);
+    }
+    input.focus();
 }
 
 window.addEventListener("load", (event) => {
