@@ -279,10 +279,12 @@ function drawAngle(angleInRadians,angleStr,units){
                 context.textAlign = 'center';
                 context.lineWidth = 1;
                 context.strokeStyle = "black";
+                context.setLineDash([]);
                 if (0<=angleInRadians%(Math.PI*2) && angleInRadians%(Math.PI*2)<Math.PI/2){
                     context.textBaseline = 'bottom';
                     context.fillText(den, x0+maxWidth/2, y0);
                     context.fillText(num, x0+maxWidth/2, y0-denHeight);
+                    context.fillText(cosSin, x0+120, y0);
                     context.beginPath();
                     context.moveTo(x0, y0-denHeight);
                     context.lineTo(x0+maxWidth, y0-denHeight);
@@ -291,6 +293,7 @@ function drawAngle(angleInRadians,angleStr,units){
                     context.textBaseline = 'bottom';
                     context.fillText(den, x0-maxWidth/2, y0);
                     context.fillText(num, x0-maxWidth/2, y0-denHeight);
+                    context.fillText(cosSin, x0-120, y0);
                     context.beginPath();
                     context.moveTo(x0, y0-denHeight);
                     context.lineTo(x0-maxWidth, y0-denHeight);
@@ -299,6 +302,7 @@ function drawAngle(angleInRadians,angleStr,units){
                     context.textBaseline = 'top';
                     context.fillText(num, x0-maxWidth/2, y0);
                     context.fillText(den, x0-maxWidth/2, y0+numHeight);
+                    context.fillText(cosSin, x0-120, y0);
                     context.beginPath();
                     context.moveTo(x0, y0+numHeight-3);
                     context.lineTo(x0-maxWidth, y0+numHeight-3);
@@ -307,6 +311,7 @@ function drawAngle(angleInRadians,angleStr,units){
                     context.textBaseline = 'top';
                     context.fillText(num, x0+maxWidth/2, y0);
                     context.fillText(den, x0+maxWidth/2, y0+numHeight);
+                    context.fillText(cosSin, x0+120, y0);
                     context.beginPath();
                     context.moveTo(x0, y0+numHeight-3);
                     context.lineTo(x0+maxWidth, y0+numHeight-3);
@@ -352,7 +357,7 @@ window.addEventListener("load", (event) => {
   <div style="display: inline-block;">
    <h1 style="text-align: center;">Угол на единичной окружности</h1>
    <div>
-    <div style="display: inline-block; vertical-align: middle; justify-self: start;">
+    <div style="display: inline-block; vertical-align: middle;">
      <canvas id="canvas" width="1200" height="700"></canvas>
     </div>
    </div>
