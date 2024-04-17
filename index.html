@@ -150,35 +150,36 @@ function drawEmptyCircle(){
         context.strokeStyle = "black";
 
         context.beginPath(); // окружность
-        context.arc(350,350,270,0,2*Math.PI)
+        context.setLineDash([]);
+        context.arc(600,350,270,0,2*Math.PI)
         context.stroke();
 
         context.beginPath(); // абцисса
-        context.moveTo(10, 350);
-        context.lineTo(690, 350);
-        context.lineTo(680, 355);
-        context.moveTo(690, 350);
-        context.lineTo(680, 345);
+        context.moveTo(290, 350);
+        context.lineTo(910, 350);
+        context.lineTo(900, 355);
+        context.moveTo(910, 350);
+        context.lineTo(900, 345);
 
-        context.moveTo(350, 690); // ордината
-        context.lineTo(350, 10);
-        context.lineTo(355, 20);
-        context.moveTo(350, 10);
-        context.lineTo(345, 20);
+        context.moveTo(600, 690); // ордината
+        context.lineTo(600, 10);
+        context.lineTo(605, 20);
+        context.moveTo(600, 10);
+        context.lineTo(595, 20);
         context.stroke();
 
         context.textBaseline = 'alphabetic';
         context.textAlign = 'left';
         context.font = "24px Times New Roman"; // подписи
         context.fillStyle = "black";
-        context.fillText('X', 680, 380);
-        context.fillText('Y', 360, 20);
+        context.fillText('X', 910, 380);
+        context.fillText('Y', 610, 20);
         context.font = "bold 24px Courier";
-        context.fillText('0', 353, 370);
-        context.fillText('1', 350+273, 370);
-        context.fillText('1', 353, 350-275);
-        context.fillText('-1', 350-303, 370);
-        context.fillText('-1', 353, 350+290);
+        context.fillText('0', 603, 370);
+        context.fillText('1', 600+273, 370);
+        context.fillText('1', 603, 350-275);
+        context.fillText('-1', 600-303, 370);
+        context.fillText('-1', 603, 350+290);
     }
 }
 
@@ -190,32 +191,43 @@ function drawAngle(angleInRadians,angleStr,units){
         context.lineWidth = 4; // сектор
         context.strokeStyle = "green";
         context.beginPath();
-        const x = Math.floor(350+270*Math.cos(angleInRadians));
+        const x = Math.floor(600+270*Math.cos(angleInRadians));
         const y = Math.floor(350-270*Math.sin(angleInRadians));
+        console.log(x,y)
 
         context.lineWidth = 1;
-        context.moveTo(350, 350);
+        context.moveTo(600, 350);
         context.lineTo(x, y);
-        context.arc(350,350,270,-angleInRadians,0)
-        context.moveTo(350+270, 350);
-        context.lineTo(350, 350);
+        context.arc(600,350,270,-angleInRadians,0)
+        context.moveTo(600+270, 350);
+        context.lineTo(600, 350);
         context.fillStyle = '#9DEC9D';
         context.fill();
         context.stroke();
         
         context.lineWidth = 4;
         context.beginPath();
-        context.moveTo(350, 350);
+        context.moveTo(600, 350);
         context.lineTo(x, y);
         context.stroke();
 
         context.beginPath();
-        context.arc(350,350,270,-angleInRadians,0)
+        context.arc(600,350,270,-angleInRadians,0)
         context.stroke();
 
         context.beginPath();
-        context.moveTo(350+270, 350);
-        context.lineTo(350, 350);
+        context.moveTo(600+270, 350);
+        context.lineTo(600, 350);
+        context.stroke();
+
+        context.beginPath();
+        context.setLineDash([5,5]);
+        context.lineWidth = 2;
+        context.strokeStyle = "black";
+        context.moveTo(x,y);
+        context.lineTo(600,y);
+        context.moveTo(x,y);
+        context.lineTo(x,350);
         context.stroke();
 
         context.textBaseline = 'alphabetic';
@@ -243,10 +255,16 @@ function drawAngle(angleInRadians,angleStr,units){
         }else if (354/180*Math.PI<textAngle && textAngle<2*Math.PI) {
             textAngle=354/180*Math.PI;
         }
-        let x0 = Math.floor(350+280*Math.cos(textAngle));
+        let x0 = Math.floor(600+280*Math.cos(textAngle));
         let y0 = Math.floor(350-280*Math.sin(textAngle));
+        let cosSin = '('+String(Math.floor(Math.cos(angleInRadians)*1000)/1000)+', '+String(Math.floor(Math.sin(angleInRadians)*1000)/1000)+')';
+        console.log(cosSin);
         if (units==='degrees'){
-            context.fillText(angleStr+'°', x0, y0);
+            if (context.textAlign==='left'){
+                context.fillText(angleStr+'° '+cosSin, x0, y0);
+            }else{
+                context.fillText(cosSin+' '+angleStr+'° ', x0, y0);
+            }
         }else{
             if (angleStr.includes('/')){
                 let [num,den] = angleStr.split('/');
@@ -334,8 +352,8 @@ window.addEventListener("load", (event) => {
   <div style="display: inline-block;">
    <h1 style="text-align: center;">Угол на единичной окружности</h1>
    <div>
-    <div style="display: inline-block; vertical-align: middle;">
-     <canvas id="canvas" width="700" height="700"></canvas>
+    <div style="display: inline-block; vertical-align: middle; justify-self: start;">
+     <canvas id="canvas" width="1200" height="700"></canvas>
     </div>
    </div>
    <div>
@@ -349,5 +367,9 @@ window.addEventListener("load", (event) => {
    <p>Введите значение угла: <input id="angle" type="text">&nbsp;<input type="button" onclick="addPi()" value="Вставить π"></p>
    <p><input type="button" onclick="showOnCircle()" value="Отобразить на окружности"></p>
    <p id="log" style="color:red"></p>
+   <img src="./произведение косинусов.PNG" title="Произведение косинуса и синуса" style="margin-left: 50px;">
+   <img src="./сумма косинусов.PNG" title="Сумма косинуса и синуса" style="margin-left: 50px;">
+   <img src="./понижение степени.PNG" title="Понижение степени для синуса и косинуса" style="margin-left: 50px;">
+   <img src="./косинус суммы.PNG" title="Косинус и синус суммы" style="margin-left: 50px;">
  </body>
 </html>
